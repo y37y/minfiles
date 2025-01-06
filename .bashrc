@@ -64,13 +64,86 @@ command_exists() {
 }
 
 #######################
+# System Aliases      #
+#######################
+# System monitoring
+alias df='df -h'
+alias free='free -h'
+alias du1='du -h --max-depth=1'
+alias du='du -h'
+alias psa='ps aux'
+alias psr='ps aux | grep'
+alias ports='lsof -i -P | grep LISTEN'
+alias neth='netstat -tulpn | grep LISTEN'
+alias pk='pkill -f'
+alias k9='kill -9'
+alias disks='df -P -kHl'
+alias ts='date +%Y-%m-%d.%H:%M:%S'
+
+# Enhanced monitoring
+alias dfh='df -h | grep -v "/snap/"'
+alias meminfo='free -m | grep -v "Swap"'
+alias cpuinfo='cat /proc/cpuinfo | grep "model name" | head -1'
+alias sysload='uptime | sed "s/.*load average: //"'
+alias connections='netstat -nat | grep ESTABLISHED | wc -l'
+alias psme='ps aux | grep $USER'
+alias psmem='ps auxf | sort -nr -k 4 | head -10'
+alias pscpu='ps auxf | sort -nr -k 3 | head -10'
+
+# System monitoring functions
+monitor_system() {
+    watch -n 1 "echo 'Memory Usage:'; free -h; echo; echo 'CPU Load:'; uptime; echo; echo 'Disk Usage:'; df -h /"
+}
+
+check_disk_space() {
+    df -h | awk '{ if($5 > "80%") print $0 }'
+}
+
+#######################
+# File Operations     #
+#######################
+# Basic operations
+alias rm='rm -v -i'
+alias rmd='rm -v -i -rf'
+alias cp='cp -v -i'
+alias mv='mv -v -i'
+alias mkdir='mkdir -p'
+alias m='mkdir -p'
+alias c='cat'
+alias v='vim'
+alias cl='clear'
+alias hi='history'
+alias where='which'
+alias ln='ln -v'
+alias chmod='chmod -v'
+alias chown='chown -v'
+
+# Archive operations
+alias ta='tar -czf archive.tar.gz'
+alias ut='tar -xvf'
+alias tarls='tar -tvf'
+alias cx='chmod +x'
+
+#######################
+# Navigation         #
+#######################
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias -- -='cd -'
+alias cd.='cd $(readlink -f .)'
+alias h='cd ~'
+alias p='pwd'
+
+#######################
 # Modern CLI Tools    #
 #######################
 # eza (modern ls replacement)
 if command_exists eza; then
     alias ls='eza --group-directories-first'
     alias ll='eza -l --group-directories-first --git'
-    alias la='eza -la --group-directories-first --git'
+    alias la='eza -la --group-directories-first --git --octal-permissions'
     alias lt='eza -T --git-ignore'
     alias l.='eza -d .*'
     alias lsize='eza -l --sort=size --reverse'
@@ -82,13 +155,15 @@ else
             alias ls='ls --color=auto'
             alias ll='ls -lh --color=auto'
             alias la='ls -lah --color=auto'
+            alias l='ls -CF --color=auto'
             ;;
         darwin*|*bsd*)
             export CLICOLOR=1
             export LSCOLORS=GxFxCxDxBxegedabagaced
             alias ls='ls -G'
-            alias ll='ls -lhG'
-            alias la='ls -lahG'
+            alias ll='ls -lGFh'
+            alias la='ls -lah'
+            alias l='ls -G'
             ;;
     esac
 fi
@@ -126,30 +201,16 @@ if command_exists fzf; then
     fh() {
         eval $( ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed 's/ *[0-9]* *//')
     }
+
+    # Enhanced find in files with preview
+    fif() {
+        if [ ! "$#" -gt 0 ]; then
+            echo "Need a string to search for!"
+            return 1
+        fi
+        rg --files-with-matches --no-messages "$1" | fzf --preview "highlight -O ansi -l {} 2> /dev/null | rg --colors 'match:bg:yellow' --ignore-case --pretty --context 10 '$1' || rg --ignore-case --pretty --context 10 '$1' {}"
+    }
 fi
-
-#######################
-# System Monitoring   #
-#######################
-# Enhanced system monitoring aliases
-alias dfh='df -h | grep -v "/snap/"'
-alias meminfo='free -m | grep -v "Swap"'
-alias cpuinfo='cat /proc/cpuinfo | grep "model name" | head -1'
-alias sysload='uptime | sed "s/.*load average: //"'
-alias connections='netstat -nat | grep ESTABLISHED | wc -l'
-alias ports='netstat -tulanp'
-alias psme='ps aux | grep $USER'
-alias psmem='ps auxf | sort -nr -k 4 | head -10'
-alias pscpu='ps auxf | sort -nr -k 3 | head -10'
-
-# System monitoring functions
-monitor_system() {
-    watch -n 1 "echo 'Memory Usage:'; free -h; echo; echo 'CPU Load:'; uptime; echo; echo 'Disk Usage:'; df -h /"
-}
-
-check_disk_space() {
-    df -h | awk '{ if($5 > "80%") print $0 }'
-}
 
 #######################
 # Network Tools       #
@@ -170,33 +231,79 @@ alias ping='ping -c 4'
 alias fastping='ping -c 100 -s.2'
 alias ports='netstat -tulanp'
 alias listening='netstat -vtlnp --listening'
+alias s='ssh'
+alias sa='ssh-add'
+alias sl='ssh-add -l'
+alias sd='ssh-add -D'
+alias pg='ping google.com'
+alias ip='ip -c a'
+alias ns='nslookup'
 
 #######################
 # Git Configuration   #
 #######################
-# Git utilities
 if command_exists git; then
+    # Basic operations
     alias g='git'
     alias gs='git status -sb'
     alias ga='git add'
     alias gaa='git add --all'
-    alias gc='git commit -v'
-    alias gca='git commit -v --amend'
+    alias gp='git push'
+    alias gpl='git pull'
+    alias gc='git clone'
+    
+    # Commit operations
+    alias gm='git commit -am'
     alias gcm='git commit -m'
+    alias gca='git commit -v --amend'
+    
+    # Branch and checkout
     alias gco='git checkout'
     alias gcb='git checkout -b'
-    alias gd='git diff'
-    alias gds='git diff --staged'
-    alias gl='git pull'
-    alias gp='git push'
-    alias glo='git log --oneline --graph'
-    alias gclean='git clean -fd'
-    alias greset='git reset --hard'
     alias gbranch='git branch'
-    alias gmerge='git merge'
+    alias gst='git status -sb'
+    
+    # Diff and log
+    alias gd='gitleaks detect'
+    alias gds='git diff --staged'
+    alias gdf='git diff'
+    alias glo='git log --oneline --graph'
+    alias glg='git log'
+    alias glog='git log --graph --pretty=format:"%C(auto)%h%d %s %C(green)%cr %C(bold blue)<%an>%Creset"'
+
+    # Git diff with more detail
+    alias gdfs='git diff --staged'
+    alias gdw='git diff --word-diff'
+    alias gdt='git difftool'
+    
+    # Additional git aliases from your fish config
+    alias gch='git checkout -b'
+    alias gsh='git stash'
+    alias gstsh='git stash'
+    alias gpristine='git reset --hard && git clean -fdx'
+    alias gfe='git fetch'
+    
+    # Forgejo specific (if you use it)
+    alias gf='git push forgejo'
+    alias gpf='git push origin && git push forgejo'
+    alias gff='git fetch forgejo'
+    alias gfu='git fetch upstream'
+    alias gfm='git push forgejo main'
+    
+    # Remote operations
+    alias gre='git remote -v'
+    alias gref='git reflog'
+    
+    # Stash operations
     alias gstash='git stash'
     alias gpop='git stash pop'
-    alias gref='git reflog'
+    
+    # Clean and reset
+    alias gclean='git clean -fd'
+    alias greset='git reset --hard'
+    
+    # Information
+    alias gwho='echo "user.name:" $(git config user.name) && echo "user.email:" $(git config user.email)'
 fi
 
 #######################
@@ -226,6 +333,23 @@ alias gup='gpg --refresh-keys && gpg --update-trustdb'
 alias glk='gpg --list-keys'
 alias gls='gpg --list-secret-keys --keyid-format LONG'
 alias glka='gpg --list-keys --keyid-format LONG --with-fingerprint'
+alias gexp='gpg --export -a'
+alias gexps='gpg --export-secret-key -a'
+alias gen='gpg --encrypt --sign --armor'
+alias gde='gpg --decrypt'
+alias gsi='gpg --sign --detach-sign --armor'
+alias gve='gpg --verify'
+alias gsc='git -c commit.gpgsign=true commit'
+alias gtl='git tag -s -m'
+alias gse='gpg --send-keys'
+alias grec='gpg --recv-keys'
+alias gki='gpg --import'
+alias gkt='gpg --edit-key'
+alias glp='gpg --list-packets'
+alias gpgv='gpg --verbose --list-packets'
+alias gpgd='gpg --debug-all'
+alias gpgdp='gpg --debug-all --list-packets'
+alias gpgdv='gpg --debug-level advanced --verbose'
 
 #######################
 # Tmux Configuration  #
@@ -238,27 +362,8 @@ if command_exists tmux; then
     alias tl='tmux list-sessions'
     alias tksv='tmux kill-server'
     alias tkss='tmux kill-session -t'
+    alias tr='tmux source-file ~/.tmux.conf'
 fi
-
-#######################
-# File Operations     #
-#######################
-# Safe file operations
-alias rm='rm -iv'
-alias cp='cp -iv'
-alias mv='mv -iv'
-alias mkdir='mkdir -p'
-alias ln='ln -v'
-alias chmod='chmod -v'
-alias chown='chown -v'
-
-# Directory navigation
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-alias -- -='cd -'
-alias cd.='cd $(readlink -f .)'
 
 #######################
 # Development Tools   #
@@ -285,7 +390,6 @@ fi
 #######################
 # Error Logging       #
 #######################
-# Error logging function
 BASH_ERROR_LOG="$HOME/.bash_errors.log"
 
 log_error() {
@@ -320,163 +424,8 @@ else
 fi
 
 #######################
-# System Aliases      #
-#######################
-# System monitoring
-alias df='df -h'
-alias free='free -h'
-alias du1='du -h --max-depth=1'
-alias psa='ps aux'
-alias psr='ps aux | grep'
-alias ports='lsof -i -P | grep LISTEN'
-alias neth='netstat -tulpn | grep LISTEN'
-alias pk='pkill -f'
-alias k9='kill -9'
-alias disks='df -P -kHl'
-alias ts='date +%Y-%m-%d.%H:%M:%S'
-
-# Enhanced monitoring (new)
-alias dfh='df -h | grep -v "/snap/"'
-alias meminfo='free -m | grep -v "Swap"'
-alias cpuinfo='cat /proc/cpuinfo | grep "model name" | head -1'
-alias sysload='uptime | sed "s/.*load average: //"'
-alias connections='netstat -nat | grep ESTABLISHED | wc -l'
-
-#######################
-# File Operations     #
-#######################
-# Basic operations
-alias rm='rm -v -i'
-alias rmd='rm -v -i -rf'
-alias cp='cp -v -i'
-alias mv='mv -v -i'
-alias mkdir='mkdir -p'
-alias m='mkdir -p'
-alias c='cat'
-alias v='vim'
-alias cl='clear'
-alias hi='history'
-alias where='which'
-
-# Archive operations
-alias ta='tar -czf archive.tar.gz'
-alias ut='tar -xvf'
-alias tarls='tar -tvf'
-alias chx='chmod +x'
-
-#######################
-# Navigation         #
-#######################
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias -- -='cd -'
-alias h='cd ~'
-alias p='pwd'
-
-#######################
-# Git Operations     #
-#######################
-alias g='git'
-alias gs='git status -sb'
-alias ga='git add'
-alias gp='git push'
-alias gc='git clone'
-alias gm='git commit -am'
-alias gpl='git pull'
-alias gst='git status -sb'
-alias gdf='git diff'
-alias gre='git remote -v'
-alias gwho='echo "user.name:" $(git config user.name) && echo "user.email:" $(git config user.email)'
-
-#######################
-# SSH & Networking   #
-#######################
-alias s='ssh'
-alias sa='ssh-add'
-alias sl='ssh-add -l'
-alias sd='ssh-add -D'
-alias pg='ping google.com'
-alias ping='ping -c 4'
-alias ip='ip -c a'
-alias ns='nslookup'
-
-#######################
-# File Search Tools  #
-#######################
-# ripgrep (if available)
-if command -v rg >/dev/null 2>&1; then
-    alias rg='rg --hidden --glob "!.git" --glob "!node_modules"'
-fi
-
-# fd (if available)
-if command -v fd >/dev/null 2>&1; then
-    alias ff='fd --type f --hidden --exclude .git --exclude node_modules'
-    alias fd='fd --type d --hidden --exclude .git --exclude node_modules'
-fi
-
-#######################
-# Tmux Aliases       #
-#######################
-alias t='tmux'
-alias tt='tmux attach'
-alias tl='tmux list-sessions'
-alias tk='tmux kill-server'
-alias tr='tmux source-file ~/.tmux.conf'
-
-#######################
-# Listing Aliases    #
-#######################
-# System-specific setup for ls/eza
-case "$(uname)" in
-    Linux)
-        if command -v eza >/dev/null 2>&1; then
-            alias ll='eza -l --group-directories-first --color=auto -h'
-            alias la='eza -la --group-directories-first --color=auto -h --octal-permissions'
-            alias l='eza --group-directories-first --color=auto'
-        else
-            alias ll='ls -lh --color=auto'
-            alias la='ls -lah --color=auto'
-            alias l='ls -CF --color=auto'
-        fi
-        ;;
-    FreeBSD|Darwin)
-        alias ll='ls -lGFh'
-        alias la='ls -lah'
-        alias l='ls -G'
-        ;;
-esac
-
-#######################
-# GPG Aliases        #
-#######################
-alias gup='gpg --refresh-keys && gpg --update-trustdb'
-alias glk='gpg --list-keys'
-alias gls='gpg --list-secret-keys --keyid-format LONG'
-alias glka='gpg --list-keys --keyid-format LONG --with-fingerprint'
-alias gexp='gpg --export -a'
-alias gexps='gpg --export-secret-key -a'
-alias gen='gpg --encrypt --sign --armor'
-alias gde='gpg --decrypt'
-alias gsi='gpg --sign --detach-sign --armor'
-alias gve='gpg --verify'
-alias gsc='git -c commit.gpgsign=true commit'
-alias gtl='git tag -s -m'
-alias gse='gpg --send-keys'
-alias grec='gpg --recv-keys'
-alias gref='gpg --refresh-keys'
-alias gki='gpg --import'
-alias gkt='gpg --edit-key'
-alias glp='gpg --list-packets'
-alias gpgv='gpg --verbose --list-packets'
-alias gpgd='gpg --debug-all'
-alias gpgdp='gpg --debug-all --list-packets'
-alias gpgdv='gpg --debug-level advanced --verbose'
-
-#######################
 # Cleanup            #
 #######################
-# Clean up temp files older than 7 days
 cleanup() {
     find /tmp -type f -atime +7 -delete 2>/dev/null
     find "$HOME/.cache" -type f -atime +30 -delete 2>/dev/null
@@ -487,3 +436,8 @@ cleanup() {
 if [ -f "$HOME/.bashrc.local" ]; then
     source "$HOME/.bashrc.local"
 fi
+
+# Source additional configurations
+for config in "$XDG_CONFIG_HOME/bash/conf.d/"*.bash ; do
+    [ -r "$config" ] && source "$config"
+done

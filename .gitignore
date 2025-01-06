@@ -1,0 +1,51 @@
+# Temporary files
+*~
+*.swp
+*.swo
+
+# Bash
+.bash_history
+.bash_logout
+.bash_local
+.bashrc.local
+
+# Logs
+*.log
+bash_errors.log
+
+# Local configs
+.config/bash/conf.d/*
+!.config/bash/conf.d/.gitkeep
+
+# Cache directories
+.cache/
+.local/share/
+
+# Session files
+.vim/
+.viminfo
+.netrwhist
+
+# OS specific
+.DS_Store
+.directory
+Thumbs.db
+
+# GPG and SSH
+.gnupg/
+.ssh/
+.gpg
+*.gpg
+*.asc
+*.key
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Credentials and tokens
+*.token
+*.secret
+.env

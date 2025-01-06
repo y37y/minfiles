@@ -14,6 +14,10 @@ export PAGER="less"
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+shopt -s checkwinsize
+shopt -s autocd
+shopt -s cdspell
+
 # XDG Base Directory
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
@@ -42,6 +46,12 @@ export TMOUT
 
 # Disable core dumps for security
 ulimit -c 0
+
+#######################
+# Color Configuration #
+#######################
+export LS_OPTIONS='--color=auto'
+eval "$(dircolors)"
 
 #######################
 # History Settings    #
@@ -80,6 +90,10 @@ alias k9='kill -9'
 alias disks='df -P -kHl'
 alias ts='date +%Y-%m-%d.%H:%M:%S'
 
+if command_exists ncdu; then
+    alias nc='ncdu --color dark'
+fi
+
 # Enhanced monitoring
 alias dfh='df -h | grep -v "/snap/"'
 alias meminfo='free -m | grep -v "Swap"'
@@ -104,14 +118,15 @@ check_disk_space() {
 #######################
 # Basic operations
 alias rm='rm -v -i'
-alias rmd='rm -v -i -rf'
+alias rmf='rm -v -i -rf'
 alias cp='cp -v -i'
+alias cpr='cp -ir'
 alias mv='mv -v -i'
 alias mkdir='mkdir -p'
 alias m='mkdir -p'
 alias c='cat'
-alias v='vim'
-alias cl='clear'
+alias ca='cat'
+alias grep='grep --color=auto'
 alias hi='history'
 alias where='which'
 alias ln='ln -v'
@@ -125,6 +140,28 @@ alias tarls='tar -tvf'
 alias cx='chmod +x'
 
 #######################
+# Config Editing     #
+#######################
+# SSH and hosts configuration
+alias vc='vim ~/.ssh/config'
+alias vsc='vim ~/.ssh/config'
+alias cc='cat ~/.ssh/config'
+alias csc='cat ~/.ssh/config'
+alias vh='vim /etc/hosts'
+alias ch='cat /etc/hosts'
+
+# Dotfile editing
+alias vb='vim ~/.bashrc'
+alias vv='vim ~/.vimrc'
+alias sb='source ~/.bashrc'
+
+#######################
+# Editor Aliases     #
+#######################
+alias v='vim'
+alias cl='clear'
+
+#######################
 # Navigation         #
 #######################
 alias ..='cd ..'
@@ -132,9 +169,12 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias -- -='cd -'
-alias cd.='cd $(readlink -f .)'
+alias b='cd -'
 alias h='cd ~'
+alias z='cd'
+alias cdl='cd $_ && ls'
 alias p='pwd'
+alias cd.='cd $(readlink -f .)'
 
 #######################
 # Modern CLI Tools    #
@@ -385,6 +425,53 @@ if command_exists node; then
     alias nup='npm update'
     alias nout='npm outdated'
     alias nls='npm list --depth=0'
+fi
+
+#######################
+# PVE Configuration  #
+#######################
+# Only load these if on a PVE system
+if command_exists pct; then
+    # PVE/LXC management
+    alias pls='pct list'
+    alias pl='pct list'
+    alias pstart='pct start'
+    alias pstop='pct stop'
+    alias pr='pct reboot'
+    alias pen='pct enter'
+    alias pstatus='pct status'
+    alias pc='pct config'
+    
+    # Container status
+    alias lsrun='pct list | grep running'
+    alias lsstop='pct list | grep stopped'
+    
+    # System management
+    alias ver='pveversion'
+    alias pvlog='tail -f /var/log/pveproxy/access.log'
+    alias pvstatus='systemctl status pveproxy'
+    alias pvre='systemctl restart pveproxy'
+    
+    # Storage management
+    alias dfp='df -hT | grep -v tmpfs | grep -v devtmpfs'
+    alias sto='pvesm status'
+    
+    # Useful PVE functions
+    pstart_all() {
+        for ct in "$@"; do
+            echo "Starting container $ct"
+            pct start "$ct"
+            sleep 2
+        done
+    }
+    
+    pstop_all() {
+        for ct in "$@"; do
+            echo "Stopping container $ct"
+            pct stop "$ct"
+            sleep 1
+        done
+    }
 fi
 
 #######################

@@ -359,6 +359,8 @@ if command_exists git; then
     
     # Information
     alias gwho='echo "user.name:" $(git config user.name) && echo "user.email:" $(git config user.email)'
+    alias gn='git config user.name'
+    alias ge='git config user.email'
 fi
 
 #######################

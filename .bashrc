@@ -98,7 +98,8 @@ if command_exists ncdu; then
 fi
 
 # Enhanced monitoring
-alias dfh='df -h | grep -v "/snap/"'
+alias dfh='df -h | grep -v tmpfs | grep -v devtmpfs'
+alias dfp='df -hT | grep -v tmpfs | grep -v devtmpfs'
 alias meminfo='free -m | grep -v "Swap"'
 alias cpuinfo='cat /proc/cpuinfo | grep "model name" | head -1'
 alias sysload='uptime | sed "s/.*load average: //"'
@@ -279,6 +280,10 @@ alias pg='ping google.com'
 alias ip='ip -c a'
 alias ns='nslookup'
 
+# tailscale
+alias ts='tailscale status'
+alias tai='tailscale'
+
 #######################
 # Git Configuration   #
 #######################
@@ -305,6 +310,8 @@ if command_exists git; then
     alias gd='gitleaks detect'
     alias gds='git diff --staged'
     alias gdf='git diff'
+    alias gn='git config user.name'
+    alias ge='git config user.email'
     alias glo='git log --oneline --graph'
     alias glg='git log'
     alias glog='git log --graph --pretty=format:"%C(auto)%h%d %s %C(green)%cr %C(bold blue)<%an>%Creset"'

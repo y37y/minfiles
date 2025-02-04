@@ -31,6 +31,8 @@ create_dir() {
         echo "Error: Failed to create directory $1" >&2
         return 1
     fi
+    # Add permission setting
+    chmod 700 "$1" 2>/dev/null || echo "Warning: Could not set permissions for $1" >&2
 }
 
 # Create essential directories with error checking
@@ -40,9 +42,7 @@ done
 
 # Security settings for server environments
 umask 027  # More restrictive file permissions by default
-TMOUT=900  # Auto logout after 15 minutes of inactivity
-readonly TMOUT
-export TMOUT
+set -o noclobber
 
 # Disable core dumps for security
 ulimit -c 0
@@ -51,7 +51,9 @@ ulimit -c 0
 # Color Configuration #
 #######################
 export LS_OPTIONS='--color=auto'
-eval "$(dircolors)"
+if command_exists dircolors; then
+    eval "$(dircolors)" 2>/dev/null || true
+fi
 
 #######################
 # History Settings    #
@@ -64,6 +66,7 @@ HISTIGNORE="ls:ll:la:cd:clear:exit"
 shopt -s histappend
 shopt -s cmdhist
 shopt -s lithist
+PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
 #######################
 # Program Detection   #
@@ -144,9 +147,7 @@ alias cx='chmod +x'
 #######################
 # SSH and hosts configuration
 alias vc='vim ~/.ssh/config'
-alias vsc='vim ~/.ssh/config'
 alias cc='cat ~/.ssh/config'
-alias csc='cat ~/.ssh/config'
 alias vh='vim /etc/hosts'
 alias ch='cat /etc/hosts'
 
@@ -172,7 +173,6 @@ alias -- -='cd -'
 alias b='cd -'
 alias h='cd ~'
 alias z='cd'
-alias cdl='cd $_ && ls'
 alias p='pwd'
 alias cd.='cd $(readlink -f .)'
 
@@ -287,20 +287,18 @@ if command_exists git; then
     alias g='git'
     alias gs='git status -sb'
     alias ga='git add'
-    alias gaa='git add --all'
     alias gp='git push'
     alias gpl='git pull'
     alias gc='git clone'
     
     # Commit operations
     alias gm='git commit -am'
-    alias gcm='git commit -m'
     alias gca='git commit -v --amend'
     
     # Branch and checkout
     alias gco='git checkout'
     alias gcb='git checkout -b'
-    alias gbranch='git branch'
+    alias gb='git branch'
     alias gst='git status -sb'
     
     # Diff and log
@@ -320,22 +318,16 @@ if command_exists git; then
     alias gch='git checkout -b'
     alias gsh='git stash'
     alias gstsh='git stash'
-    alias gpristine='git reset --hard && git clean -fdx'
     alias gfe='git fetch'
     
     # Forgejo specific (if you use it)
     alias gf='git push forgejo'
     alias gpf='git push origin && git push forgejo'
-    alias gff='git fetch forgejo'
-    alias gfu='git fetch upstream'
-    alias gfm='git push forgejo main'
     
     # Remote operations
     alias gre='git remote -v'
-    alias gref='git reflog'
     
     # Stash operations
-    alias gstash='git stash'
     alias gpop='git stash pop'
     
     # Clean and reset
@@ -388,7 +380,6 @@ alias gkt='gpg --edit-key'
 alias glp='gpg --list-packets'
 alias gpgv='gpg --verbose --list-packets'
 alias gpgd='gpg --debug-all'
-alias gpgdp='gpg --debug-all --list-packets'
 alias gpgdv='gpg --debug-level advanced --verbose'
 
 #######################
@@ -433,7 +424,6 @@ fi
 # Only load these if on a PVE system
 if command_exists pct; then
     # PVE/LXC management
-    alias pls='pct list'
     alias pl='pct list'
     alias pstart='pct start'
     alias pstop='pct stop'
@@ -479,6 +469,13 @@ fi
 #######################
 BASH_ERROR_LOG="$HOME/.bash_errors.log"
 
+if [ -f "$BASH_ERROR_LOG" ]; then
+    size=$(wc -c < "$BASH_ERROR_LOG" 2>/dev/null || echo 0)
+    if [ "$size" -gt 1048576 ]; then
+        mv "$BASH_ERROR_LOG" "$BASH_ERROR_LOG.old"
+    fi
+fi
+
 log_error() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" >> "$BASH_ERROR_LOG"
 }
@@ -503,21 +500,20 @@ get_memory() {
     free -m | awk 'NR==2{printf "%.1f%%", $3*100/$2 }'
 }
 
-# Set prompt
+# Update prompt info every 60 seconds instead of every prompt
+prompt_update() {
+    load=$(uptime | awk -F'load average:' '{ print $2 }' | cut -d, -f1)
+    memory=$(free -m | awk 'NR==2{printf "%.1f%%", $3*100/$2 }')
+}
+
+PROMPT_COMMAND="prompt_update; history -a"
+
+# More efficient PS1
 if [[ ${EUID} == 0 ]]; then
     PS1='\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '
 else
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]$(parse_git_branch)\[\033[00m\] $(if [ $? -ne 0 ]; then echo "\[\033[01;31m\](err)\[\033[00m\]"; fi)[\l:\[\033[01;36m\]$(get_load)\[\033[00m\]|\[\033[01;35m\]$(get_memory)\[\033[00m\]]\$ '
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]$(parse_git_branch)\[\033[00m\]${load:+ [$load|$memory]}\$ '
 fi
-
-#######################
-# Cleanup            #
-#######################
-cleanup() {
-    find /tmp -type f -atime +7 -delete 2>/dev/null
-    find "$HOME/.cache" -type f -atime +30 -delete 2>/dev/null
-    find "$HOME" -name "*.tmp" -type f -delete 2>/dev/null
-}
 
 # Source local customizations
 if [ -f "$HOME/.bashrc.local" ]; then

@@ -1,144 +1,136 @@
 # Minfiles
 
-A minimal but powerful dotfiles configuration optimized for both modern and traditional Unix environments. Features extensive alias configurations, modern CLI tool integration, and smart fallbacks.
+A minimal but powerful dotfiles configuration optimized for server environments and system administration. Features secure defaults, comprehensive monitoring aliases, and smart infrastructure management tools.
 
 ## Overview
+- 🔒 Security-focused defaults with restrictive permissions
+- 🛠️ Comprehensive system monitoring and management tools
+- 🔧 Smart detection of available commands and tools
+- 📊 Error logging and system status tracking
+- 🖥️ Proxmox VE (PVE) integration when available
+- 🔑 GPG and SSH management utilities
 
-- 🔧 Smart fallbacks between modern and traditional tools
-- 🚀 Extensive alias collection for rapid navigation and operations
-- 🛡️ Safe file operation defaults
-- 🎨 Color-enabled output where supported
-- 🔄 Intelligent history management
-- 🌲 Git integration in prompt
+## Security Features
+- Restrictive umask (027) for secure file permissions
+- Core dump prevention (ulimit -c 0)
+- Secure directory creation (700 permissions)
+- Noclobber protection against file overwrites
+- Error logging with rotation
 
-## Features
+## Core Functionality
+### System Monitoring
+- Enhanced df/du commands
+- Memory and CPU usage tracking
+- Disk space monitoring
+- Process management
+- Network connection monitoring
 
-### Core Functionality
-- Modern CLI tool support (eza, ripgrep, fd, fzf) with fallbacks
-- Comprehensive alias system for common operations
-- Safe defaults for file operations
-- XDG Base Directory support
-- Automatic command existence checking
-- Local configuration support
+### Infrastructure Management
+- Proxmox VE integration
+- Container management
+- Storage monitoring
+- System status tracking
 
-### Alias Categories
-- Navigation (`z`, `cdl`, directory traversal)
-- File operations (safe defaults)
-- Git operations (extensive shortcuts)
-- Config editing (SSH, hosts file)
-- System monitoring
-- Network operations
-
-### Configurations
-- `.bashrc`: Enhanced bash configuration
-- `.vimrc`: Vim configuration
-- `tmux/`: Tmux configuration
+### Network Tools
+- SSH management
+- Port checking
+- Network status monitoring
+- IP and connectivity tools
 
 ## Installation
-
-### Option 1: Direct Copy (Recommended)
 ```bash
 # Clone repository
 git clone https://github.com/y37y/minfiles.git
 
 # Backup existing configs
 cp ~/.bashrc ~/.bashrc.backup
-cp ~/.vimrc ~/.vimrc.backup
 
-# Copy new configs
+# Copy new config
 cp ~/minfiles/.bashrc ~/.bashrc
-cp ~/minfiles/.vimrc ~/.vimrc
-cp -r ~/minfiles/tmux ~/.config/
-```
-
-### Option 2: Source Method
-Add to your existing ~/.bashrc:
-```bash
-# Add to end of ~/.bashrc
-[ -f ~/minfiles/.bashrc ] && source ~/minfiles/.bashrc
 ```
 
 ## Dependencies
-
-### Core Dependencies
+### Core Dependencies (usually pre-installed)
 - bash
 - vim
-- tmux
+- basic GNU utilities
 
-### Optional Modern CLI Tools
+### Optional Tools
+- ncdu (disk usage analyzer)
 - eza (modern ls replacement)
 - ripgrep (modern grep replacement)
 - fd (modern find replacement)
-- fzf (fuzzy finder)
-- ncdu (disk usage analyzer)
 
-### Installation of Dependencies
-
-#### Ubuntu/Debian
+### Installation on Different Platforms
+#### Debian/Ubuntu
 ```bash
-sudo apt install ripgrep fd-find fzf tmux gpg ncdu
+sudo apt update
+sudo apt install vim ncdu ripgrep
 ```
 
-#### Arch Linux
+#### Alpine
 ```bash
-sudo pacman -S ripgrep fd fzf eza tmux gnupg ncdu
+apk add vim ncdu ripgrep
 ```
 
-#### macOS
+#### Proxmox
 ```bash
-brew install ripgrep fd fzf eza tmux gnupg ncdu
+apt update
+apt install vim ncdu ripgrep
 ```
 
 ## Customization
-
-### Local Customizations
+### Local Configurations
 - Create `~/.bashrc.local` for machine-specific settings
 - Add `.bash` files to `~/.config/bash/conf.d/`
 
-### Config Editing Aliases
-- `vb`: Edit bashrc
-- `vv`: Edit vimrc
-- `vc`/`vsc`: Edit SSH config
-- `vh`: Edit hosts file
-
-### Navigation Aliases
-- `z`: cd
-- `cdl`: cd and list
-- `..`, `...`, `....`: Directory traversal
-- `-` or `b`: Previous directory
-
-### File Operation Aliases
-- Safe defaults for `rm`, `cp`, `mv`
-- Enhanced listing with colors
-- Modern alternatives when available
+### Available Sections
+- System monitoring aliases
+- File operation aliases
+- Network tools
+- PVE management (when available)
+- Git integration (optional)
+- GPG configuration (optional)
 
 ## Usage Examples
-
-### Basic Navigation
+### System Monitoring
 ```bash
-z ~/projects    # Change directory
-cdl documents   # Change and list
-b              # Go back to previous directory
+monitor_system  # Shows real-time system stats
+check_disk_space  # Check volumes over 80% usage
+psmem  # Top memory-consuming processes
+pscpu  # Top CPU-consuming processes
 ```
 
-### File Operations
+### Network Operations
 ```bash
-la              # List all with details (eza if available)
-rmf old_dir     # Safe recursive remove
-cpr src dest    # Recursive copy with confirmation
+portcheck host port  # Check if port is open
+myip  # Show public IP
+localip  # Show local IPs
+ports  # Show listening ports
 ```
 
-### Git Operations
+### PVE Management (when available)
 ```bash
-glog            # Enhanced git log
-gdf             # Git diff
-gpristine       # Reset to pristine state
+pl  # List containers
+pstart_all 100 101 102  # Start multiple containers
+sto  # Storage status
 ```
 
-## Maintenance
+## Error Handling
+The configuration includes automatic error logging:
+- Logs are stored in `~/.bash_errors.log`
+- Automatic log rotation at 1MB
+- Timestamps for all error entries
 
-The configuration automatically:
-- Manages history with duplicates removal
-- Sets safe file operation defaults
-- Provides color output where supported
-- Checks for command availability before setting aliases
+## Security Notes
+- Designed with security in mind for server environments
+- Implements restrictive file permissions
+- Includes safe operation defaults
+- Optional GPG/SSH integration
+
+## Platform Support
+- Debian/Ubuntu servers
+- Proxmox VE hosts
+- Alpine containers
+- General Linux environments
+

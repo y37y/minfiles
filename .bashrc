@@ -3,6 +3,11 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 #######################
 # Core Configuration #
 #######################

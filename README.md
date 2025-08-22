@@ -1,14 +1,13 @@
 # Minfiles
 
-A minimal but powerful dotfiles configuration optimized for both general Unix environments and server administration, with special support for Proxmox VE environments.
+A general-purpose dotfiles configuration for Unix environments and server administration. Provides enhanced shell functionality with smart tool detection and comprehensive aliases.
 
 ## Overview
 - Security-focused defaults and permissions
 - Smart command detection and fallbacks
 - Comprehensive system aliases and functions
-- Proxmox VE integration and tooling
-- System monitoring and management
-- Fast and lightweight setup
+- Cross-platform compatibility
+- System monitoring and management tools
 
 ## Features
 
@@ -40,36 +39,22 @@ A minimal but powerful dotfiles configuration optimized for both general Unix en
   myip      # Public IP
   localip   # Local IPs
   ports     # Show listening ports
-  netwatch  # Monitor connections
   ```
 
-### Proxmox VE Integration
-- Container management
+### Development Tools
+- Git integration with comprehensive aliases
+- Modern tool support (eza, ripgrep, fd, fzf)
+- Vim configuration with cross-platform compatibility
+- Tmux integration when available
+
+### Optional PVE Integration
+When Proxmox VE is detected, additional container management aliases are loaded:
   ```bash
   pl        # List containers
   pstart    # Start container
   pstop     # Stop container
   pen       # Enter container
   ```
-- System administration
-  ```bash
-  sto       # Storage status
-  pvlog     # PVE proxy logs
-  dfp       # Physical disk usage
-  ```
-- Batch operations
-  ```bash
-  pstart_all 100 101 102  # Start multiple containers
-  pstop_all 100 101 102   # Stop multiple containers
-  ```
-
-### Development Tools
-- Vim configuration with plugins
-  - FZF integration
-  - Git support
-  - Modern themes
-- Version control helpers
-- Search utilities (ripgrep, fd)
 
 ## Installation
 
@@ -89,14 +74,16 @@ cd ~/Projects/minfiles/setup
 
 ## For PVE Hosts
 
-Use [pve-base-setup](https://github.com/y37y/pve-base-setup) for complete PVE host configuration including these dotfiles:
+For complete PVE host setup with system tools and specialized configuration, use [pve-base-setup](https://github.com/y37y/pve-base-setup):
 
 ```bash
 git clone https://github.com/y37y/pve-base-setup.git
 cd pve-base-setup
 ./base.sh      # Install system tools
-./dotfiles.sh  # Install minfiles automatically
+./dotfiles.sh  # Install PVE-optimized configuration
 ```
+
+Note: pve-base-setup includes its own PVE-specific dotfiles optimized for Proxmox administration.
 
 ## Dependencies
 
@@ -110,10 +97,11 @@ cd pve-base-setup
 - eza (modern ls replacement)
 - ripgrep (modern grep replacement)
 - fd (modern find replacement)
+- fzf (fuzzy finder)
 
 ### Installing Dependencies
 
-#### Debian/Ubuntu/Proxmox
+#### Debian/Ubuntu
 ```bash
 sudo apt install vim ripgrep fd-find fzf ncdu
 ```
@@ -133,9 +121,9 @@ apk add vim ripgrep fd fzf ncdu
 - System monitoring aliases
 - File operation aliases
 - Network tools
-- PVE management
 - Git integration
 - Development tools
+- Platform-specific features
 
 ## Error Handling
 The configuration includes automatic error logging:
@@ -145,6 +133,7 @@ The configuration includes automatic error logging:
 
 ## Platform Support
 - Debian/Ubuntu servers
-- Proxmox VE hosts
 - Alpine containers
+- FreeBSD systems
+- macOS (with Homebrew)
 - General Linux environments

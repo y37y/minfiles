@@ -82,7 +82,7 @@ install_git_repos() {
 
     echo -e "${BLUE}Installing/updating $type...${NC}"
     cd "$dir" || exit 1
-    
+
     for repo_name in "${!repos[@]}"; do
         if [ -d "$repo_name" ]; then
             echo -e "${GREEN}Updating $repo_name...${NC}"
@@ -97,23 +97,24 @@ install_git_repos() {
 # Setup shell integration for FZF
 setup_shell_integration() {
     echo -e "${BLUE}Setting up shell integration...${NC}"
-    
+
     # Remove old FZF sourcing lines if they exist
     sed -i '/source.*fzf\/shell\/key-bindings.bash/d' ~/.bashrc
     sed -i '/source.*fzf\/shell\/completion.bash/d' ~/.bashrc
-    
+
     # Add new FZF sourcing lines
     echo "source ~/.fzf/shell/key-bindings.bash" >> ~/.bashrc
     echo "source ~/.fzf/shell/completion.bash" >> ~/.bashrc
 }
 
-# Copy vimrc
+# Copy vimrc from minfiles repository
 setup_vimrc() {
     echo -e "${BLUE}Setting up vimrc...${NC}"
-    if [ -f "$PROJECT_ROOT/vim/.vimrc" ]; then
-        cp "$PROJECT_ROOT/vim/.vimrc" ~/.vimrc
+    if [ -f "$PROJECT_ROOT/.vimrc" ]; then
+        cp "$PROJECT_ROOT/.vimrc" ~/.vimrc
+        echo -e "${GREEN}Copied .vimrc from minfiles repository${NC}"
     else
-        echo -e "${RED}vimrc not found in minfiles!${NC}"
+        echo -e "${RED}vimrc not found in minfiles repository at $PROJECT_ROOT/.vimrc${NC}"
         return 1
     fi
 }

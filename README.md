@@ -3,12 +3,12 @@
 A minimal but powerful dotfiles configuration optimized for both general Unix environments and server administration, with special support for Proxmox VE environments.
 
 ## Overview
-- 🛡️ Security-focused defaults and permissions
-- 🔧 Smart command detection and fallbacks
-- 🚀 Comprehensive system aliases and functions
-- 🖥️ Proxmox VE integration and tooling
-- 📊 System monitoring and management
-- ⚡ Fast and lightweight setup
+- Security-focused defaults and permissions
+- Smart command detection and fallbacks
+- Comprehensive system aliases and functions
+- Proxmox VE integration and tooling
+- System monitoring and management
+- Fast and lightweight setup
 
 ## Features
 
@@ -73,24 +73,29 @@ A minimal but powerful dotfiles configuration optimized for both general Unix en
 
 ## Installation
 
-### Direct Installation
 ```bash
-# Clone repository
-git clone https://github.com/y37y/minfiles.git ~/.minfiles
+# Clone to Projects directory
+mkdir -p ~/Projects
+git clone https://github.com/y37y/minfiles.git ~/Projects/minfiles
 
-# Install vim configuration (optional)
-cd ~/.minfiles/setup
-./vim.sh
-
-# Setup bashrc
-ln -s ~/.minfiles/bashrc ~/.bashrc
+# Setup dotfiles
+ln -s ~/Projects/minfiles/.bashrc ~/.bashrc
 source ~/.bashrc
+
+# Optional: Install vim plugins
+cd ~/Projects/minfiles/setup
+./vim.sh
 ```
 
-### As a Git Submodule
+## For PVE Hosts
+
+Use [pve-base-setup](https://github.com/y37y/pve-base-setup) for complete PVE host configuration including these dotfiles:
+
 ```bash
-# In your dotfiles repository
-git submodule add https://github.com/y37y/minfiles.git
+git clone https://github.com/y37y/pve-base-setup.git
+cd pve-base-setup
+./base.sh      # Install system tools
+./dotfiles.sh  # Install minfiles automatically
 ```
 
 ## Dependencies
@@ -108,7 +113,7 @@ git submodule add https://github.com/y37y/minfiles.git
 
 ### Installing Dependencies
 
-#### Debian/Ubuntu
+#### Debian/Ubuntu/Proxmox
 ```bash
 sudo apt install vim ripgrep fd-find fzf ncdu
 ```
@@ -116,11 +121,6 @@ sudo apt install vim ripgrep fd-find fzf ncdu
 #### Alpine
 ```bash
 apk add vim ripgrep fd fzf ncdu
-```
-
-#### Proxmox
-```bash
-apt install vim ripgrep fd-find fzf ncdu
 ```
 
 ## Customization

@@ -505,29 +505,8 @@ parse_git_branch() {
     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 
-# System load and memory info
-get_load() {
-    uptime | awk -F'load average:' '{ print $2 }' | cut -d, -f1
-}
-
-get_memory() {
-    free -m | awk 'NR==2{printf "%.1f%%", $3*100/$2 }'
-}
-
-# Update prompt info every 60 seconds instead of every prompt
-prompt_update() {
-    load=$(uptime | awk -F'load average:' '{ print $2 }' | cut -d, -f1)
-    memory=$(free -m | awk 'NR==2{printf "%.1f%%", $3*100/$2 }')
-}
-
-PROMPT_COMMAND="prompt_update; history -a"
-
-# More efficient PS1
-if [[ ${EUID} == 0 ]]; then
-    PS1='\[\033[01;31m\]\h\[\033[01;34m\] \W \$\[\033[00m\] '
-else
-    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[33m\]$(parse_git_branch)\[\033[00m\]${load:+ [$load|$memory]}\$ '
-fi
+# Clean prompt: user@host:path(git-branch)$
+PS1="\[\e[01;32m\]\u\[\e[37m\]@\[\e[01;33m\]\h\[\e[00m\]:\[\e[01;34m\]\w\[\e[00m\]\$(parse_git_branch)\$ "
 
 # Source local customizations
 if [ -f "$HOME/.bashrc.local" ]; then

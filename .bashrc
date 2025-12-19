@@ -96,7 +96,6 @@ alias neth='netstat -tulpn | grep LISTEN'
 alias pk='pkill -f'
 alias k9='kill -9'
 alias disks='df -P -kHl'
-alias ts='date +%Y-%m-%d.%H:%M:%S'
 
 if command_exists ncdu; then
     alias nc='ncdu --color dark'
@@ -158,6 +157,7 @@ alias vh='vim /etc/hosts'
 alias ch='cat /etc/hosts'
 
 # Dotfile editing
+alias va='vim ~/.bashrc'
 alias vb='vim ~/.bashrc'
 alias vv='vim ~/.vimrc'
 alias sb='source ~/.bashrc'
@@ -285,9 +285,20 @@ alias pg='ping google.com'
 alias ip='ip -c a'
 alias ns='nslookup'
 
-# tailscale
+# Tailscale
 alias ts='tailscale status'
-alias tai='tailscale'
+alias ti='tailscale ip -4'      # Just the IPv4
+alias tu='tailscale up'
+alias td='tailscale down'
+alias tp='tailscale ping'
+alias tnet='tailscale netcheck' # Check DERP/UDP health
+
+# ZeroTier
+alias zt='sudo zerotier-cli'
+alias zs='sudo zerotier-cli status'
+alias zl='sudo zerotier-cli listnetworks'
+alias zi='sudo zerotier-cli info'
+alias zp='sudo zerotier-cli peers'
 
 #######################
 # Git Configuration   #
@@ -366,12 +377,6 @@ if ! pgrep -x "gpg-agent" >/dev/null; then
     gpg-agent --daemon 2>/dev/null || echo "Failed to start gpg-agent"
 fi
 
-# Set SSH to use GPG
-if gpgconf --list-dirs agent-ssh-socket >/dev/null 2>&1; then
-    unset SSH_AGENT_PID
-    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-fi
-
 # GPG aliases
 alias gup='gpg --refresh-keys && gpg --update-trustdb'
 alias glk='gpg --list-keys'
@@ -401,7 +406,7 @@ if command_exists tmux; then
     alias t='tmux'
     alias ta='tmux attach -t'
     alias tad='tmux attach -d -t'
-    alias ts='tmux new-session -s'
+    alias tn='tmux new-session -s'
     alias tl='tmux list-sessions'
     alias tksv='tmux kill-server'
     alias tkss='tmux kill-session -t'
@@ -491,9 +496,6 @@ fi
 log_error() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" >> "$BASH_ERROR_LOG"
 }
-
-# Trap errors
-trap 'log_error "Last command failed with exit code $?"' ERR
 
 #######################
 # Prompt Configuration#

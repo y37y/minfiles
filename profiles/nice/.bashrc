@@ -95,7 +95,8 @@ alias -- -='cd -'
 alias h='cd ~'
 alias z='cd'
 alias p='pwd'
-alias cls='clear'
+
+alias cl='clear'
 alias hi='history'
 alias c='cat'
 alias v="$EDITOR"
@@ -120,6 +121,7 @@ alias sb='source ~/.bashrc'
 
 # Mild safety (servers): keep predictable defaults
 alias cp='cp -i'
+alias cpr='cp -ir'
 alias mv='mv -i'
 # If you *really* want rm -i on servers, keep it; otherwise comment it out.
 alias rm='rm -i'
@@ -162,7 +164,40 @@ have ss      && alias listening='ss -lntup'
 have netstat && alias listening='netstat -tulpen'
 have lsof    && alias ports='lsof -i -P -n | grep LISTEN'
 
-have ip && alias ip='ip -c a'
+# iproute2 helpers (don't shadow `ip`)
+if have ip; then
+  # show addresses
+  alias ipa='ip -c a'
+  alias ip4='ip -c -4 a'
+  alias ip6='ip -c -6 a'
+
+  # routes
+  alias ipr='ip -c r'
+  alias ipr4='ip -c -4 r'
+  alias ipr6='ip -c -6 r'
+
+  # links / neighbors
+  alias ipl='ip -c link'
+  alias ipn='ip -c neigh'
+
+  # quick default route
+  ipgw() { ip -4 route show default; }
+fi
+
+# Tailscale (guarded)
+have tailscale && {
+  alias ts='tailscale status'
+  alias tu='sudo tailscale up'
+  alias td='sudo tailscale down'
+}
+
+# ZeroTier (guarded)
+have zerotier-cli && {
+  alias zt='sudo zerotier-cli'
+  alias zs='sudo zerotier-cli status'
+  alias zl='sudo zerotier-cli listnetworks'
+  alias zp='sudo zerotier-cli peers'
+}
 
 # -----------------------
 # modern cli (guarded)
@@ -191,20 +226,20 @@ fi
 # -----------------------
 if have git; then
   alias g='git'
-  alias gs='git status -sb'
+  alias gst='git status -sb'
   alias ga='git add'
   alias gaa='git add -A'
-  alias gcm='git commit -m'
+  alias gm='git commit -m'
   alias gca='git commit --amend'
   alias gco='git checkout'
   alias gcb='git checkout -b'
-  alias gsw='git switch'
-  alias gsc='git switch -c'
   alias gb='git branch'
   alias gpl='git pull --rebase'
   alias gc='git clone'
   alias gp='git push'
   alias gpf='git push --force-with-lease'
+  alias glg='git log'
+  alias glog='git log --graph --pretty=format:"%C(auto)%h%d %s %C(green)%cr %C(bold blue)<%an>%Creset"'
   alias gl='git log --oneline --graph --decorate --max-count=20'
   alias gdf='git diff'
   alias gds='git diff --staged'
@@ -225,15 +260,30 @@ else
 fi
 
 # -----------------------
-# Proxmox (guarded)
+# 7. Proxmox (PVE Only)
 # -----------------------
-if have pct; then
+# These only activate if pveversion (Proxmox host) is detected
+if have pveversion; then
+  alias pve='pveversion -v'
+  
+  # LXC
   alias pl='pct list'
   alias pen='pct enter'
-  alias pc='pct config'
   alias pstart='pct start'
   alias pstop='pct stop'
-  have pveversion && alias ver='pveversion'
+  alias punlock='pct unlock'
+
+  # VMs
+  alias qm='qm'
+  alias qml='qm list'
+  alias qstart='qm start'
+  alias qstop='qm stop'
+  alias qshut='qm shutdown'
+  alias qunlock='qm unlock'
+
+  # Storage/Firewall
+  alias psm='pvesm status'
+  alias pw='pve-firewall status'
 fi
 
 # -----------------------

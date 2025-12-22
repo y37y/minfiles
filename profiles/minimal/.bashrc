@@ -78,6 +78,8 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias -- -='cd -'
 alias h='cd ~'
+alias z='cd'
+alias p='pwd'
 
 alias c='cat'
 alias v="$EDITOR"
@@ -87,8 +89,28 @@ alias hi='history'
 
 # Keep these mild; avoid surprises on servers
 alias cp='cp -i'
+alias cpr='cp -ir'
 alias mv='mv -i'
+alias m='mkdir -p'
 # Intentionally NOT setting rm -i here (put that in "nice" if you want)
+
+# Archive operations
+alias ta='tar -czf archive.tar.gz'
+alias ut='tar -xvf'
+alias tarls='tar -tvf'
+alias cx='chmod +x'
+
+# SSH and hosts configuration
+alias vc='vim ~/.ssh/config'
+alias cc='cat ~/.ssh/config'
+alias vh='vim /etc/hosts'
+alias ch='cat /etc/hosts'
+
+# Dotfile editing
+alias va='vim ~/.bashrc'
+alias vb='vim ~/.bashrc'
+alias vv='vim ~/.vimrc'
+alias sb='source ~/.bashrc'
 
 # -----------------------
 # git QoL (only if git exists)

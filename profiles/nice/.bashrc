@@ -93,11 +93,30 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 alias -- -='cd -'
 alias h='cd ~'
+alias z='cd'
 alias p='pwd'
 alias cls='clear'
 alias hi='history'
 alias c='cat'
 alias v="$EDITOR"
+
+# Archive operations
+alias ta='tar -czf archive.tar.gz'
+alias ut='tar -xvf'
+alias tarls='tar -tvf'
+alias cx='chmod +x'
+
+# SSH and hosts configuration
+alias vc='vim ~/.ssh/config'
+alias cc='cat ~/.ssh/config'
+alias vh='vim /etc/hosts'
+alias ch='cat /etc/hosts'
+
+# Dotfile editing
+alias va='vim ~/.bashrc'
+alias vb='vim ~/.bashrc'
+alias vv='vim ~/.vimrc'
+alias sb='source ~/.bashrc'
 
 # Mild safety (servers): keep predictable defaults
 alias cp='cp -i'

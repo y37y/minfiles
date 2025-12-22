@@ -1,139 +1,197 @@
-# Minfiles
+# minfiles
 
-A general-purpose dotfiles configuration for Unix environments and server administration. Provides enhanced shell functionality with smart tool detection and comprehensive aliases.
+Minimal, opinionated dotfiles for **servers, VMs, LXCs, and bare metal**, with a clear split between:
 
-## Overview
-- Security-focused defaults and permissions
-- Smart command detection and fallbacks
-- Comprehensive system aliases and functions
-- Cross-platform compatibility
-- System monitoring and management tools
+* **`minimal`** → ultra-safe, zero-dependency config
+* **`nice`** → same base, plus Vim plugins and quality-of-life features
 
-## Features
+Designed to be:
 
-### Core Shell Features
-- Smart command detection and fallbacks
-- Comprehensive alias system
-- History management with timestamps
-- XDG base directory compliance
-- Error logging with rotation
+* predictable
+* easy to audit
+* safe to deploy over SSH / cloud-init / CI
+* usable on Linux, BSD, macOS, Proxmox, Alpine, etc.
 
-### Security Features
-- Restrictive umask (027) for secure file permissions
-- Core dump prevention (ulimit -c 0)
-- Secure directory creation (700 permissions)
-- Safe operation aliases (rm, cp, mv)
-- Noclobber protection
+---
 
-### System Tools
-- Enhanced monitoring commands
-  ```bash
-  df        # Enhanced disk free with human readable
-  free      # Memory status
-  psmem     # Process by memory usage
-  pscpu     # Process by CPU usage
-  psme      # User processes
-  ```
-- Network utilities
-  ```bash
-  myip      # Public IP
-  localip   # Local IPs
-  ports     # Show listening ports
-  ```
+## Repository Structure
 
-### Development Tools
-- Git integration with comprehensive aliases
-- Modern tool support (eza, ripgrep, fd, fzf)
-- Vim configuration with cross-platform compatibility
-- Tmux integration when available
-
-### Optional PVE Integration
-When Proxmox VE is detected, additional container management aliases are loaded:
-  ```bash
-  pl        # List containers
-  pstart    # Start container
-  pstop     # Stop container
-  pen       # Enter container
-  ```
-
-## Installation
-
-```bash
-# Clone to Projects directory
-mkdir -p ~/Projects
-git clone https://github.com/y37y/minfiles.git ~/Projects/minfiles
-
-# Setup dotfiles
-ln -s ~/Projects/minfiles/.bashrc ~/.bashrc
-source ~/.bashrc
-
-# Optional: Install vim plugins
-cd ~/Projects/minfiles/setup
-./vim.sh
+```text
+minfiles/
+├── profiles/
+│   ├── minimal/
+│   │   ├── .bashrc
+│   │   └── .vimrc
+│   └── nice/
+│       ├── .bashrc
+│       └── .vimrc
+├── setup/
+│   ├── minimal.sh
+│   └── nice.sh
+└── README.md
 ```
 
-## For PVE Hosts
+---
 
-For complete PVE host setup with system tools and specialized configuration, use [pve-base-setup](https://github.com/y37y/pve-base-setup):
+## Profiles
+
+### 🧱 `minimal` profile (recommended default for servers)
+
+**What it installs**
+
+* `~/.bashrc`
+* `~/.vimrc`
+
+**Characteristics**
+
+* No plugins
+* No external dependencies
+* No Git required
+* Fast startup
+* Safe for rescue shells, initramfs, minimal containers
+
+**Use cases**
+
+* Production servers
+* Proxmox hosts
+* Alpine / BusyBox systems
+* Emergency SSH sessions
+* Systems you don’t fully control
+
+**Install**
 
 ```bash
-git clone https://github.com/y37y/pve-base-setup.git
-cd pve-base-setup
-./base.sh      # Install system tools
-./dotfiles.sh  # Install PVE-optimized configuration
+cd setup
+./minimal.sh
 ```
 
-Note: pve-base-setup includes its own PVE-specific dotfiles optimized for Proxmox administration.
+Optional: copy instead of symlink
 
-## Dependencies
-
-### Core Dependencies
-- bash
-- vim
-- git (for setup)
-
-### Optional Tools
-- ncdu (disk usage analyzer)
-- eza (modern ls replacement)
-- ripgrep (modern grep replacement)
-- fd (modern find replacement)
-- fzf (fuzzy finder)
-
-### Installing Dependencies
-
-#### Debian/Ubuntu
 ```bash
-sudo apt install vim ripgrep fd-find fzf ncdu
+COPY=1 ./minimal.sh
 ```
 
-#### Alpine
+---
+
+### ✨ `nice` profile (servers + comfort)
+
+Everything from **minimal**, plus:
+
+**Vim plugins (native `pack/*`)**
+
+* `tokyonight` – colorscheme
+* `vim-fugitive` – Git integration
+* `vim-airline` + themes – status line
+* `auto-pairs` – auto-close brackets
+* `fzf.vim` – fuzzy finding (fzf binary optional)
+
+**Characteristics**
+
+* Still Vim-only (no Neovim requirement)
+* No plugin manager
+* Deterministic installs
+* Works over SSH and in CI
+* Plugins are optional but **enabled by default**
+
+**Install**
+
 ```bash
-apk add vim ripgrep fd fzf ncdu
+cd setup
+./nice.sh
 ```
 
-## Customization
+---
 
-### Local Configurations
-- Create `~/.bashrc.local` for machine-specific settings
-- Add `.bash` files to `~/.config/bash/conf.d/`
+## Vim Plugin Install Behavior (nice profile)
 
-### Available Sections
-- System monitoring aliases
-- File operation aliases
-- Network tools
-- Git integration
-- Development tools
-- Platform-specific features
+| Scenario                   | Result                    |
+| -------------------------- | ------------------------- |
+| `./nice.sh` (TTY)          | Prompt (default: **YES**) |
+| `./nice.sh` (non-TTY / CI) | **Install plugins**       |
+| `PLUGINS=1 ./nice.sh`      | Force install             |
+| `PLUGINS=0 ./nice.sh`      | Skip plugins              |
 
-## Error Handling
-The configuration includes automatic error logging:
-- Logs stored in `~/.bash_errors.log`
-- Automatic log rotation at 1MB
-- Timestamps for all error entries
+Plugins are installed to:
 
-## Platform Support
-- Debian/Ubuntu servers
-- Alpine containers
-- FreeBSD systems
-- macOS (with Homebrew)
-- General Linux environments
+```text
+~/.vim/pack/minfiles/start/
+```
+
+This uses **Vim’s native package system** — no Pathogen, Plug, or runtime hacks.
+
+---
+
+## Symlink vs Copy
+
+By default, files are **symlinked**:
+
+```text
+~/.bashrc → minfiles/profiles/*/.bashrc
+~/.vimrc  → minfiles/profiles/*/.vimrc
+```
+
+To **copy files instead** (recommended for immutable servers):
+
+```bash
+COPY=1 ./minimal.sh
+COPY=1 ./nice.sh
+```
+
+---
+
+## Requirements
+
+| Profile             | Requirements |
+| ------------------- | ------------ |
+| minimal             | POSIX shell  |
+| nice (no plugins)   | POSIX shell  |
+| nice (with plugins) | `git`        |
+
+Optional (nice profile only):
+
+* `fzf` binary (for best experience with `fzf.vim`)
+
+---
+
+## Philosophy
+
+* **Servers first**, not dotfile vanity
+* One Vim config that works everywhere
+* No plugin manager magic
+* Easy to read, easy to delete
+* You should be able to `scp` this repo and trust it
+
+If you want:
+
+* Neovim
+* LSP
+* Treesitter
+* Language tooling
+
+Those belong in a **different repo**.
+
+---
+
+## Quick Examples
+
+### Minimal server bootstrap
+
+```bash
+git clone https://github.com/y37y/minfiles.git
+cd minfiles/setup
+./minimal.sh
+```
+
+### “Nice” admin box
+
+```bash
+git clone https://github.com/y37y/minfiles.git
+cd minfiles/setup
+./nice.sh
+```
+
+### Cloud-init / non-interactive
+
+```bash
+PLUGINS=1 COPY=1 ./nice.sh
+```

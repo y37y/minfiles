@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 # minfiles setup: nice profile
 # Installs ONLY: ~/.bashrc and ~/.vimrc
